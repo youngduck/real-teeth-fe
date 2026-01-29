@@ -1,0 +1,41 @@
+import js from "@eslint/js";
+import query from "@tanstack/eslint-plugin-query";
+import eslintConfigPrettier from "eslint-config-prettier";
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
+import globals from "globals";
+import tseslint from "typescript-eslint";
+
+export default tseslint.config([
+  {
+    ignores: ["dist/**", "build/**", ".next/**", "node_modules/**"],
+  },
+  {
+    files: ["**/*.{ts,tsx}"],
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.recommended,
+      ...query.configs["flat/recommended"],
+      eslintConfigPrettier,
+    ],
+    plugins: {
+      "react-hooks": reactHooks,
+      "react-refresh": reactRefresh,
+      "@tanstack/query": query,
+    },
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+
+      // React Query 관련 규칙
+      "@tanstack/query/exhaustive-deps": "error",
+      "@tanstack/query/no-rest-destructuring": "warn",
+      "@tanstack/query/stable-query-client": "error",
+      "@tanstack/query/no-unstable-deps": "warn",
+    },
+  },
+]);
