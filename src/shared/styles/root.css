@@ -1,16 +1,19 @@
 @import "tailwindcss";
+@import "@youngduck/yd-ui/styles";
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@theme {
+  /* Breakpoints: 모바일(기본), 데스크탑(lg)만 사용 */
+  --breakpoint-sm: 640px;
+  --breakpoint-lg: 1024px;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+
+html,body {
+  background-color: var(--color-background-primary);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-yds-wanted);
 }
 
 #root {
