@@ -2,7 +2,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 
 import { getCoordinatesFromAddress } from "@shared/api/kakao";
 import { fetchWeatherByCoords } from "@shared/api/openweather";
-import { WEATHER_QUERY_KEYS } from "./weather-query-keys";
 
 export const useGetWeatherByAddressSuspense = (address: string) => {
   const query = useSuspenseQuery({
