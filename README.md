@@ -117,6 +117,12 @@ pnpm test:coverage
   - `widgets/weather-display`: 복합 UI 블록
   - `shared/api`, `shared/data`: 공유 리소스
 
+**알려진 제한사항:**
+- **시간대별 기온 데이터**: OpenWeatherMap API의 5일/3시간 예보는 현재 시간 이후의 데이터만 제공합니다.
+  - 3시간 간격(00시, 03시, 06시, 09시, 12시, 15시, 18시, 21시)으로 데이터 제공
+  - 이미 지나간 시간대는 포함되지 않음
+  - 예: 현재 시간이 오후 6시(18시)라면 18시, 21시 데이터만 표시됨
+
 **환경 변수 설정:**
 ```env
 VITE_OPENWEATHER_API_KEY=your_openweather_api_key
