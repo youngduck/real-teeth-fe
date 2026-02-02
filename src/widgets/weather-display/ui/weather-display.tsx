@@ -5,9 +5,11 @@
  */
 import { Card } from "@youngduck/yd-ui";
 import { useEffect, useMemo, useState } from "react";
+import { Heart, HeartOff } from "lucide-react";
 
 import { useGetForecastByAddressSuspense, useGetWeatherByAddressSuspense } from "@entities/weather";
 import { LocationSearchInput } from "@features/location-search";
+import { useFavoritesStore } from "@shared/store/favorites-store";
 
 interface WeatherDisplayProps {
   initialAddress?: string;
@@ -18,6 +20,7 @@ export const WeatherDisplay = ({ initialAddress = "서울특별시" }: WeatherDi
   const [selectedAddress, setSelectedAddress] = useState(initialAddress);
   const { data: weatherData } = useGetWeatherByAddressSuspense(selectedAddress);
   const { data: forecastData } = useGetForecastByAddressSuspense(selectedAddress);
+  const { addFavorite, removeFavorite, isFavorite, canAddMore } = useFavoritesStore();
   //!SECTION HOOK호출 영역
 
   //SECTION 상태값 영역
@@ -32,6 +35,21 @@ export const WeatherDisplay = ({ initialAddress = "서울특별시" }: WeatherDi
   //SECTION 메서드 영역
   const handleLocationSelect = (location: string) => {
     setSelectedAddress(location);
+  };
+
+  const handleToggleFavorite = () => {
+    if (isFavorite(addressName)) {
+      const favorite = useFavoritesStore.getState().getFavoriteByAddress(addressName);
+      if (favorite) {
+        removeFavorite(favorite.id);
+      }
+    } else {
+      if (canAddMore()) {
+        addFavorite(addressName);
+      } else {
+        alert("즐겨찾기는 최대 6개까지 추가할 수 있습니다.");
+      }
+    }
   };
   //!SECTION 메서드 영역
 
@@ -65,15 +83,26 @@ export const WeatherDisplay = ({ initialAddress = "서울특별시" }: WeatherDi
   }, [forecastData]);
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
-    <h1 className="mb-6 text-2xl font-bold text-white sm:text-3xl lg:text-4xl">날씨 정보</h1>
-
-    <div className="mb-6 w-full max-w-md sm:max-w-lg lg:max-w-xl">
+    <div className="flex flex-col">
+    <div className="mb-6 w-full">
       <LocationSearchInput onLocationSelect={handleLocationSelect} />
     </div>
 
-    <Card className="w-full max-w-md sm:max-w-lg lg:max-w-xl">
-      <h2 className="mb-4 text-xl font-bold text-white sm:text-2xl lg:text-3xl">{addressName} 날씨</h2>
+    <Card className="w-full">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-xl font-bold text-white sm:text-2xl lg:text-3xl">{addressName} 날씨</h2>
+        <button
+          onClick={handleToggleFavorite}
+          className="rounded p-2 text-white hover:bg-white/20"
+          aria-label={isFavorite(addressName) ? "즐겨찾기 제거" : "즐겨찾기 추가"}
+        >
+          {isFavorite(addressName) ? (
+            <Heart size={24} className="fill-red-500 text-red-500" />
+          ) : (
+            <HeartOff size={24} />
+          )}
+        </button>
+      </div>
 
       <div className="mb-6 flex flex-col items-center gap-4 sm:flex-row sm:items-center lg:gap-6">
         <img
