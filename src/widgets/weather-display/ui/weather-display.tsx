@@ -4,20 +4,29 @@
  * 프로세스 설명: OpenWeatherMap API로부터 받은 날씨 데이터를 UI로 표시
  */
 import { Card } from "@youngduck/yd-ui";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useGetForecastByAddressSuspense, useGetWeatherByAddressSuspense } from "@entities/weather";
 import { LocationSearchInput } from "@features/location-search";
 
-export const WeatherDisplay = () => {
+interface WeatherDisplayProps {
+  initialAddress?: string;
+}
+
+export const WeatherDisplay = ({ initialAddress = "서울특별시" }: WeatherDisplayProps) => {
   //SECTION HOOK호출 영역
-  const [selectedAddress, setSelectedAddress] = useState("서울특별시");
+  const [selectedAddress, setSelectedAddress] = useState(initialAddress);
   const { data: weatherData } = useGetWeatherByAddressSuspense(selectedAddress);
   const { data: forecastData } = useGetForecastByAddressSuspense(selectedAddress);
   //!SECTION HOOK호출 영역
 
   //SECTION 상태값 영역
-
+  // initialAddress가 변경되면 selectedAddress 업데이트
+  useEffect(() => {
+    if (initialAddress) {
+      setSelectedAddress(initialAddress);
+    }
+  }, [initialAddress]);
   //!SECTION 상태값 영역
 
   //SECTION 메서드 영역
@@ -36,7 +45,6 @@ export const WeatherDisplay = () => {
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-    console.log("forecastData", forecastData);
 
     const todayItems = forecastData.forecast.list.filter((item) => {
       const itemDate = new Date(item.dt * 1000);
@@ -54,7 +62,7 @@ export const WeatherDisplay = () => {
       minTemp,
       maxTemp,
     };
-  }, [forecastData.forecast.list]);
+  }, [forecastData]);
 
   return (
     <div className="flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
