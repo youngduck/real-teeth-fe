@@ -11,7 +11,7 @@ export interface ICurrentLocation {
 }
 
 export const useGetCurrentLocation = () => {
-  return useQuery<ICurrentLocation | null, Error, string>({
+  return useQuery<ICurrentLocation | null, Error, string | null>({
     queryKey: LOCATION_QUERY_KEYS.CURRENT,
     queryFn: async () => {
       // 1. 위치 권한 요청 및 좌표 가져오기
@@ -54,8 +54,7 @@ export const useGetCurrentLocation = () => {
 
       return address;
     },
-    select: (data) => data?.addressName ?? "서울특별시",
-    placeholderData: () => ({ lat: 0, lon: 0, addressName: "서울특별시" }), // 초기값으로 기본 주소 사용
+    select: (data) => data?.addressName ?? null,
     enabled: false, // 수동으로 실행
     retry: false,
   });
