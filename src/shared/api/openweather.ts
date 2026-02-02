@@ -43,11 +43,26 @@ export const fetchWeatherByCoords = async (lat: number, lon: number): Promise<IC
   return response.json();
 };
 
-// 시간대별 기온 예보 (5일/3시간)
+// 시간대별 기온 예보 (5일/3시간) - 도시명
 export const fetchForecast = async (city: string): Promise<IForecast> => {
   const apiKey = getApiKey();
   const response = await fetch(
     `${API_BASE_URL}/forecast?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=ko`
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || "예보 정보를 가져올 수 없습니다.");
+  }
+
+  return response.json();
+};
+
+// 시간대별 기온 예보 (5일/3시간) - 좌표
+export const fetchForecastByCoords = async (lat: number, lon: number): Promise<IForecast> => {
+  const apiKey = getApiKey();
+  const response = await fetch(
+    `${API_BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=ko`
   );
 
   if (!response.ok) {
