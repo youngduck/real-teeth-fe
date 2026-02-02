@@ -123,3 +123,63 @@ VITE_OPENWEATHER_API_KEY=your_openweather_api_key
 VITE_KAKAO_REST_API_KEY=your_kakao_rest_api_key
 ```
 
+### Feature/A-3-앱진입시현재위치감지
+**주요 작업 / 변경사항:**
+- **브라우저 Geolocation API** - 사용자 현재 위치 좌표 획득
+- **카카오 역지오코딩 API** - 좌표 → 주소 변환
+- **자동 위치 감지** - 앱 첫 진입 시 자동으로 현재 위치 감지
+- **React Query select 활용** - 데이터 변환 및 기본값 처리 최적화
+- **위치 권한 처리** - 권한 거부 시 기본값(서울특별시) 사용
+
+**구현 세부사항:**
+
+1. **현재 위치 감지 Hook (useGetCurrentLocation)**
+   - 브라우저 Geolocation API를 통한 위치 좌표 획득
+   - 위치 권한 요청 및 에러 처리
+   - 카카오 역지오코딩 API로 좌표 → 주소 변환
+   - React Query의 `select`로 주소만 추출
+   - `placeholderData`로 기본값 설정
+
+2. **카카오 역지오코딩 API 연동**
+   - 좌표 → 주소 변환 (getAddressFromCoordinates)
+   - 도로명 주소 우선, 없으면 지번 주소 사용
+   - 한국 행정구역 주소 반환
+
+3. **HomePage 통합**
+   - 앱 첫 진입 시 자동으로 위치 감지
+   - 위치 감지 중 스켈레톤 UI 표시
+   - 위치 정보를 받으면 해당 주소로 날씨 표시
+   - 위치 권한 거부 또는 실패 시 기본값(서울특별시) 사용
+
+4. **에러 처리**
+   - 위치 권한 거부: 기본값 사용
+   - 위치 정보 사용 불가: 기본값 사용
+   - 타임아웃: 기본값 사용
+   - 주소 변환 실패: 기본값 사용
+
+5. **통합 플로우**
+   ```
+   앱 첫 진입
+   → 브라우저 위치 권한 요청
+   → 사용자 허용/거부
+   → 허용 시: 현재 좌표 획득
+   → 카카오 역지오코딩 API (좌표 → 주소)
+   → OpenWeatherMap API (주소 → 날씨)
+   → 날씨 정보 표시
+   → 거부/실패 시: 기본값(서울특별시) 사용
+   ```
+
+**사용한 기술 및 이유:**
+- **브라우저 Geolocation API**: 표준 웹 API, 추가 라이브러리 불필요, 모든 모던 브라우저 지원
+- **카카오 역지오코딩 API**: 한국 주소 변환에 최적화, 정확한 행정구역 주소 제공
+- **React Query select**: 데이터 변환을 Hook 내부에서 처리하여 컴포넌트 로직 단순화
+- **placeholderData**: 초기 로딩 상태에서도 기본값을 제공하여 UX 개선
+- **FSD 아키텍처**:
+  - `entities/location/api`: 위치 관련 비즈니스 로직
+  - `shared/api/kakao`: 카카오 API 공유 함수
+  - `pages/home`: 페이지 레벨 통합
+
+**코드 최적화:**
+- `useEffect` 3개 → 1개로 축소 (React Query select 활용)
+- `useState` 제거 (React Query의 select로 데이터 변환)
+- 컴포넌트 로직 단순화 및 가독성 향상
